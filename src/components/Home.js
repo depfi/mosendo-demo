@@ -2,15 +2,36 @@ import React from "react";
 import "../App.css";
 import ChannelCard from "./channelCard";
 import QRScan from "./qrScan";
-import QRIcon from "mdi-material-ui/QrcodeScan";
-import SendIcon from "@material-ui/icons/Send";
-import ReceiveIcon from "@material-ui/icons/SaveAlt";
 import Modal from "@material-ui/core/Modal";
 import Button from "@material-ui/core/Button";
 import { Fab, Grid, withStyles } from "@material-ui/core";
 import { Link } from "react-router-dom";
 
-const styles = {};
+const camQR = require("../assets/camQR.png");
+const arrowUp = require("../assets/arrowUp.png");
+const arrowDown = require("../assets/arrowDown.png");
+
+const styles = theme => ({
+  buttonSendRequest: {
+    height: '48px',
+    color: "#7F4998",
+    backgroundColor: "#FFF",
+    border: '1px solid #7F4998',
+    borderRadius: '24px',
+    boxShadow: 'none',
+    fontSize: '16px',
+  },
+  buttomCash: {
+    color: '#fff',
+    fontSize: '16px',
+    heigth: '48px',
+    marginBottom: "20%",
+    boxShadow: 'none',
+    backgroundColor: '#B768D4',
+    backgroundImage: 'linear-gradient(to right, #8F52AA , #B768D4)',
+    borderRadius: '24px',
+  }
+});
 
 class Home extends React.Component {
   state = {
@@ -63,7 +84,7 @@ class Home extends React.Component {
 
   render() {
     const { modals } = this.state;
-    const { address, channelState, connextState } = this.props;
+    const { address, channelState, connextState, classes } = this.props;
     return (
       <>
         <Grid container direction="row" style={{ marginBottom: "-7.5%" }}>
@@ -75,19 +96,31 @@ class Home extends React.Component {
         </Grid>
         <Grid container direction="column">
           <Grid item xs={12}
-            style={{ marginRight: "5%", marginLeft: "80%" }}
+            style={{ margin: '2% auto' }}
           >
             <Fab
               style={{
                 color: "#FFF",
-                backgroundColor: "#fca311",
-                size: "large"
+                backgroundColor: "#FFFFFF",
+                width: '64px',
+                height: '64px',
+                border: '3px solid #B768D4',
+                boxShadow: 'none',
               }}
               onClick={() =>
                 this.setState({ modals: { ...modals, scan: true } })
               }
             >
-              <QRIcon />
+              {/* <QRIcon /> */}
+              <div
+                style={{ marginTop: '15%' }}
+              >
+                <img
+                  src={camQR}
+                  alt=""
+                  style={{ width: "24px", height: "24px" }}
+                />
+              </div>
             </Fab>
             <Modal
               id="qrscan"
@@ -132,40 +165,50 @@ class Home extends React.Component {
               <Grid item xs={12} sm={6}>
                 <Button
                   fullWidth
-                  style={{
-                    color: "#FFF",
-                    backgroundColor: "#FCA311"
-                  }}
+                  className={classes.buttonSendRequest}
                   variant="contained"
                   size="large"
                   component={Link}
                   to="/receive"
                 >
+                  <span
+                    style={{ marginRight: '15%' }}
+                  >
+                    <img
+                      src={arrowDown}
+                      alt=""
+                      style={{ width: "16px", height: "16px" }}
+                    />
+                  </span>
                   Request
-                  <ReceiveIcon style={{ marginLeft: "5px" }} />
                 </Button>
               </Grid>
               <Grid item xs={12} sm={6}>
                 <Button
                   fullWidth
-                  style={{
-                    color: "#FFF",
-                    backgroundColor: "#FCA311"
-                  }}
+                  className={classes.buttonSendRequest}
                   size="large"
                   variant="contained"
                   component={Link}
                   to="/send"
                 >
+                  <span
+                    style={{ marginRight: '15%' }}
+                  >
+                    <img
+                      src={arrowUp}
+                      alt=""
+                      style={{ width: "16px", height: "16px" }}
+                    />
+                  </span>
                   Send
-                  <SendIcon style={{ marginLeft: "5px" }} />
                 </Button>
               </Grid>
             </Grid>
           </Grid>
           <Grid item xs={12}>
             <Button
-              style={{ marginBottom: "20%" }}
+              className={classes.buttomCash}
               fullWidth
               color="primary"
               variant="outlined"

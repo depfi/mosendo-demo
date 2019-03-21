@@ -23,31 +23,34 @@ class ChannelCard extends Component {
     const display = getChannelBalanceInUSD(channelState, connextState)
     return (
         <Grid>
-          <Grid 
+          <Grid
             container
             spacing={16}
             direction="row"
             style={{
-              paddingLeft: "10%",
+              paddingLeft: "3%",
               paddingRight: "10%",
-              paddingTop: "10%",
-              paddingBottom: "20%",
-              backgroundColor: "#282b2e",
-              textAlign: "center"
+              paddingTop: "20%",
+              paddingBottom: "5%",
+              backgroundColor: '#B768D4',
+              backgroundImage: 'linear-gradient(to right, #8F52AA , #B768D4)',
             }}
             alignItems="center"
             justify="center"
           >
           <Grid item xs={12}>
+            <div style={{ fontSize: '16px', color: 'white' }}>
+              Your Balance
+            </div>
             <span>
-              <Typography inline={true} variant="h5" className={classes.row}>
-                {"$ "}
-              </Typography>
-              <Typography inline={true} variant="h1" className={classes.row}>
+              <Typography inline={true} variant="h3" className={classes.row}>
                 <span>{display.substring(1, display.length - 2)}</span>
               </Typography>
               <Typography inline={true} variant="h3" className={classes.row}>
-                <span>{display.substr(display.length - 2)}</span>
+                <span style={{ marginRight: '10px' }}>{display.substr(display.length - 2)}</span>
+              </Typography>
+              <Typography inline={true} variant="h5" className={classes.row}>
+                DAI
               </Typography>
             </span>
           </Grid>
