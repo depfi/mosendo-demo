@@ -11,12 +11,18 @@ import { Link } from "react-router-dom";
 
 const logo = require("../assets/logo.png");
 const leftArrow = require("../assets/leftArrow.png");
+const leftArrowBlack = require("../assets/leftArrowBlack.png");
 
 const styles = theme => ({
   bar: {
     paddingTop: "2%",
     backgroundColor: '#B768D4',
     backgroundImage: 'linear-gradient(to right, #8F52AA , #B768D4)',
+  },
+  noneSetting: {
+    paddingTop: "2%",
+    backgroundColor: '#FFFFFF',
+    backgroundImage: 'none',
   },
   logo: {
     color: '#ffffff',
@@ -30,11 +36,16 @@ const styles = theme => ({
 });
 class AppBarComponent extends Component {
   render() {
-    const { classes, isBack } = this.props;
+    const { classes, isBack, isSetting } = this.props;
     return (
       <Grid>
         <Grid container spacing={16}>
-          <AppBar position="sticky" color="secondary" elevation={0} className={classes.bar}>
+          <AppBar
+            position="sticky"
+            color="secondary"
+            elevation={0}
+            className={isSetting ? classes.bar : classes.noneSetting}
+          >
             <Toolbar>
               <Grid
                 container
@@ -52,10 +63,13 @@ class AppBarComponent extends Component {
                       }}
                       to="/"
                     >
-                      <div className={classes.logo}>
+                      <div
+                        className={classes.logo}
+                        style={{ color: `${isSetting ? '#ffffff' : '#000000'}` }}
+                      >
                         <div>
                           <img
-                            src={leftArrow}
+                            src={isSetting ? leftArrow : leftArrowBlack}
                             alt=""
                             style={{ width: "8px", height: "16px", marginTop: '1px' }}
                           />
@@ -94,25 +108,27 @@ class AppBarComponent extends Component {
                     </Link>
                   )}
                 </Grid>
-                <Grid item xs={5}>
-                  <Link
-                    style={{
-                      color: "#ffffff",
-                      fontSize: "13px",
-                      textDecoration: 'none',
-                    }}
-                    to="/settings"
-                  >
-                    <div className={classes.settings}>
-                      <div>
-                        <SettingIcon style={{ width: '20.04px', height: '21px', marginTop: '-3px' }} />
+                {isSetting && (
+                  <Grid item xs={5}>
+                    <Link
+                      style={{
+                        color: "#ffffff",
+                        fontSize: "13px",
+                        textDecoration: 'none',
+                      }}
+                      to="/settings"
+                    >
+                      <div className={classes.settings}>
+                        <div>
+                          <SettingIcon style={{ width: '20.04px', height: '21px', marginTop: '-3px' }} />
+                        </div>
+                        <div style={{ marginLeft: "3px", lineHeight: '16px', fontWeight: '500' }}>
+                          &nbsp;Settings
+                        </div>
                       </div>
-                      <div style={{ marginLeft: "3px", lineHeight: '16px', fontWeight: '500' }}>
-                        &nbsp;Settings
-                      </div>
-                    </div>
-                  </Link>
-                </Grid>
+                    </Link>
+                  </Grid>
+                )}
               </Grid>
             </Toolbar>
           </AppBar>
@@ -124,10 +140,12 @@ class AppBarComponent extends Component {
 
 AppBarComponent.propTypes = {
   isBack: boolean,
+  isSetting: boolean,
 }
 
 AppBarComponent.defaultProps = {
   isBack: false,
+  isSetting: true,
 }
 
 export default withStyles(styles)(AppBarComponent);
