@@ -1,12 +1,9 @@
 import React, { Component } from "react";
 import Button from "@material-ui/core/Button";
-import SendIcon from "@material-ui/icons/Send";
-import TextField from "@material-ui/core/TextField";
-import QRIcon from "mdi-material-ui/QrcodeScan";
-import LinkIcon from "@material-ui/icons/Link";
-import InputAdornment from "@material-ui/core/InputAdornment";
 import Tooltip from "@material-ui/core/Tooltip";
 import Modal from "@material-ui/core/Modal";
+import AppBarComponent from "./AppBar";
+import ChannelCard from "./channelCard";
 import QRScan from "./qrScan";
 import {
   withStyles,
@@ -24,11 +21,11 @@ import { convertPayment } from "connext/dist/types";
 import BN from "bn.js";
 import interval from "interval-promise";
 import Web3 from "web3";
-import { getChannelBalanceInUSD } from "../utils/currencyFormatting";
 
 const queryString = require("query-string");
 // $10 capped linked payments
 const LINK_LIMIT = Web3.utils.toBN(Web3.utils.toWei("10", "ether"));
+const camQR = require("../assets/camQR.png");
 
 const styles = theme => ({
   icon: {
@@ -38,9 +35,58 @@ const styles = theme => ({
   input: {
     width: "100%"
   },
-  button: {
-    backgroundColor: "#FCA311",
-    color: "#FFF"
+  buttonSend: {
+    color: '#fff',
+    fontSize: '16px',
+    fontWeight: '500',
+    heigth: '48px',
+    marginTop: "20%",
+    boxShadow: 'none',
+    backgroundColor: '#B768D4',
+    backgroundImage: 'linear-gradient(to right, #8F52AA , #B768D4)',
+    borderRadius: '24px',
+    textTransform: 'none',
+  },
+  linkCSS: {
+    color: '#8F52AA',
+    fontSize: '16px',
+    fontWeight: '500',
+    textAlign: 'center',
+    margin: "13% 0 25%",
+  },
+  amountStyle: {
+    width: '100%',
+    height: '50px',
+    border: '1px solid #7F4998',
+    boxSizing: 'border-box',
+    borderRadius: '24px',
+    padding: '15px 24px 12px',
+    fontSize: '16px',
+    fontWeight: '500',
+    color: '#7F4998',
+    '&::placeholder': {
+      color: '#7F4998',
+      mixBlendMode: 'normal',
+      opacity: '0.5',
+    },
+    outline: 'none',
+  },
+  addressStyle: {
+    width: '89%',
+    height: '50px',
+    border: 'none',
+    boxSizing: 'border-box',
+    borderRadius: '24px',
+    padding: '15px 12px 12px 24px',
+    fontSize: '16px',
+    fontWeight: '500',
+    color: '#7F4998',
+    '&::placeholder': {
+      color: '#7F4998',
+      mixBlendMode: 'normal',
+      opacity: '0.5',
+    },
+    outline: 'none',
   }
 });
 
@@ -77,7 +123,7 @@ function ConfirmationDialogText(paymentState, amountToken, recipient) {
               Recipient's Card is being set up. This should take 20-30 seconds.
             </DialogContentText>
             <DialogContentText variant="body1" style={{ color: "#0F1012" }}>
-              If you stay on this page, your payment will be retried automatically. 
+              If you stay on this page, your payment will be retried automatically.
               If you navigate away or refresh the page, you will have to attempt the payment again yourself.
             </DialogContentText>
           <CircularProgress style={{ marginTop: "1em" }} />
@@ -236,7 +282,7 @@ class PayCard extends Component {
       balanceError: null,
       paymentState: PaymentStates.None,
       scan: false,
-      displayVal: props.scanArgs.amount ? props.scanArgs.amount : "0",
+      displayVal: props.scanArgs.amount ? props.scanArgs.amount : "",
       showReceipt: false
     };
   }
@@ -274,7 +320,7 @@ class PayCard extends Component {
     if (decimal && decimal.length > 18) {
       tokenVal = value.startsWith('.') ? value.substr(0, 19) : value.split('.')[0] + '.' + decimal.substr(0, 18)
       balanceError = `Value too precise! Using ${tokenVal}`
-    }    
+    }
     await this.setState(oldState => {
       oldState.paymentVal.payments[0].amount.amountToken = value
         ? Web3.utils.toWei(`${tokenVal}`, "ether")
@@ -551,191 +597,199 @@ class PayCard extends Component {
   };
 
   render() {
-    const { classes, channelState, connextState } = this.props;
+    const { classes, channelState, connextState, address } = this.props;
     const { paymentState } = this.state;
     return (
-      <Grid
-        container
-        spacing={16}
-        direction="column"
-        style={{
-          display: "flex",
-          paddingLeft: 12,
-          paddingRight: 12,
-          paddingTop: "10%",
-          paddingBottom: "10%",
-          textAlign: "center",
-          justify: "center"
-        }}
-      >
-        <Grid
-          container
-          wrap="nowrap"
-          direction="row"
-          justify="center"
-          alignItems="center"
-        >
-          <Grid item xs={12}>
-            <SendIcon className={classes.icon} />
+      <>
+        <AppBarComponent address={address} isBack/>
+        <Grid container direction="row">
+          <Grid item xs={12}
+            style={{ flexGrow: 1 }}
+          >
+            <ChannelCard
+              channelState={channelState}
+              address={address}
+              connextState = {connextState}
+              marginBottom='5%'
+            />
           </Grid>
         </Grid>
-        <Grid item xs={12}>
-          <Grid container direction="row" justify="center" alignItems="center">
-            <Typography variant="h2">
-              <span>
-                {getChannelBalanceInUSD(channelState, connextState)}
+        <Grid
+          container
+          spacing={16}
+          direction="column"
+          style={{
+            display: "flex",
+            paddingLeft: 12,
+            paddingRight: 12,
+            paddingTop: "6%",
+            paddingBottom: "10%",
+            justify: "center"
+          }}
+        >
+          <Grid item xs={12}>
+            <Typography variant="body2">
+              <span
+                style={{
+                  fontStyle: 'italic',
+                  fontWeight: '300',
+                  fontSize: '13px',
+                }}
+              >
+                {"* Linked payments are capped at $10 *"}
               </span>
             </Typography>
           </Grid>
-        </Grid>
-        <Grid item xs={12}>
-          <Typography variant="body2">
-            <span>{"Linked payments are capped at $10."}</span>
-          </Typography>
-        </Grid>
-        <Grid item xs={12}>
-          <TextField
-            fullWidth
-            id="outlined-number"
-            label="Amount"
-            value={this.state.displayVal}
-            type="number"
-            margin="normal"
-            variant="outlined"
-            onChange={evt => this.updatePaymentHandler(evt.target.value)}
-            error={this.state.balanceError !== null}
-            helperText={this.state.balanceError}
-          />
-        </Grid>
-        <Grid item xs={12}>
-          <TextField
-            style={{ width: "100%" }}
-            id="outlined"
-            label="Recipient Address"
-            type="string"
-            value={
-              this.state.paymentVal.payments[0].recipient === emptyAddress
-                ? ""
-                : this.state.paymentVal.payments[0].recipient
-            }
-            onChange={evt => this.updateRecipientHandler(evt.target.value)}
-            margin="normal"
-            variant="outlined"
-            helperText={
-              this.state.addressError
-                ? this.state.addressError
-                : "Optional for linked payments"
-            }
-            error={this.state.addressError !== null}
-            InputProps={{
-              endAdornment: (
-                <InputAdornment position="end">
-                  <Tooltip
-                    disableFocusListener
-                    disableTouchListener
-                    title="Scan with QR code"
-                  >
-                    <Button
-                      variant="contained"
-                      color="primary"
-                      style={{ color: "#FFF" }}
-                      onClick={() => this.setState({ scan: true })}
-                    >
-                      <QRIcon />
-                    </Button>
-                  </Tooltip>
-                </InputAdornment>
-              )
-            }}
-          />
-        </Grid>
-        <Modal
-          id="qrscan"
-          open={this.state.scan}
-          onClose={() => this.setState({ scan: false })}
-          style={{
-            justifyContent: "center",
-            alignItems: "center",
-            textAlign: "center",
-            position: "absolute",
-            top: "10%",
-            width: "375px",
-            marginLeft: "auto",
-            marginRight: "auto",
-            left: "0",
-            right: "0"
-          }}
-        >
-          <QRScan
-            handleResult={this.handleQRData}
-            history={this.props.history}
-          />
-        </Modal>
-        <Grid item xs={12}>
-          <Grid
-            container
-            direction="row"
-            alignItems="center"
-            justify="center"
-            spacing={16}
-          >
-            <Grid item xs={6}>
-              <Button
-                fullWidth
-                className={classes.button}
-                variant="contained"
-                size="large"
-                onClick={() => {this.linkHandler()}}
-              >
-                Link
-                <LinkIcon style={{ marginLeft: "5px" }} />
-              </Button>
-            </Grid>
-            <Grid item xs={6}>
-              <Button
-                fullWidth
-                className={classes.button}
-                variant="contained"
-                size="large"
-                onClick={() => {this.paymentHandler()}}
-              >
-                Send
-                <SendIcon style={{ marginLeft: "5px" }} />
-              </Button>
-            </Grid>
+          <Grid item xs={12}>
+            <div style={{ margin: '10% 0 8px 0' }}>
+              <input
+                id="outlined-number"
+                value={this.state.displayVal}
+                type="number"
+                onChange={evt => this.updatePaymentHandler(evt.target.value)}
+                placeholder='Amount...'
+                className={classes.amountStyle}
+              />
+              {this.state.balanceError !== null && (
+                <div
+                  style={{
+                    padding: '5px 24px',
+                    color: 'red',
+                    fontWeight: '300',
+                    fontSize: '13px',
+                  }}
+                >
+                  <span>{this.state.balanceError}</span>
+                </div>
+              )}
+            </div>
           </Grid>
-        </Grid>
-        <Grid item xs={12}>
-          <Button
-            variant="outlined"
+          <Grid item xs={12}>
+            <div
+              style={{
+                border: '1px solid #7F4998',
+                borderRadius: '24px',
+              }}
+            >
+              <input
+                id="outlined"
+                type="string"
+                value={
+                  this.state.paymentVal.payments[0].recipient === emptyAddress
+                    ? ""
+                    : this.state.paymentVal.payments[0].recipient
+                }
+                onChange={evt => this.updateRecipientHandler(evt.target.value)}
+                placeholder='Recipient Address...'
+                className={classes.addressStyle}
+              />
+              <Tooltip
+                disableFocusListener
+                disableTouchListener
+                title="Scan with QR code"
+              >
+                <span
+                  style={{ verticalAlign: 'sub', cursor: 'pointer' }}
+                  onClick={() => this.setState({ scan: true })}
+                >
+                  <img
+                    src={camQR}
+                    alt=""
+                    style={{ width: "24px", height: "24px" }}
+                  />
+                </span>
+              </Tooltip>
+            </div>
+            {this.state.addressError !== null && (
+              <div
+                style={{
+                  padding: '5px 24px',
+                  color: 'red',
+                  fontWeight: '300',
+                  fontSize: '13px',
+                }}
+              >
+                <span>
+                  {
+                    this.state.addressError
+                      ? this.state.addressError
+                      : "Optional for linked payments"
+                  }
+                </span>
+              </div>
+            )}
+          </Grid>
+          <Modal
+            id="qrscan"
+            open={this.state.scan}
+            onClose={() => this.setState({ scan: false })}
             style={{
-              background: "#FFF",
-              border: "1px solid #F22424",
-              color: "#F22424",
-              width: "15%"
+              justifyContent: "center",
+              alignItems: "center",
+              textAlign: "center",
+              position: "absolute",
+              top: "10%",
+              width: "375px",
+              marginLeft: "auto",
+              marginRight: "auto",
+              left: "0",
+              right: "0"
             }}
-            size="medium"
-            onClick={() => this.props.history.push("/")}
           >
-            Back
-          </Button>
+            <QRScan
+              handleResult={this.handleQRData}
+              history={this.props.history}
+            />
+          </Modal>
+          <Grid item xs={12}>
+            <Typography variant="body2">
+              <span
+                style={{
+                  fontStyle: 'italic',
+                  fontWeight: '300',
+                  fontSize: '13px',
+                }}
+              >
+                {"* Optional for linked payments *"}
+              </span>
+            </Typography>
+          </Grid>
+          <Grid item xs={12}>
+            <Button
+              fullWidth
+              className={classes.buttonSend}
+              variant="contained"
+              size="large"
+              disableRipple
+              onClick={() => {this.paymentHandler()}}
+            >
+              Send the money
+            </Button>
+          </Grid>
+          <Grid item xs={12}>
+            <div className={classes.linkCSS}>
+              <span style={{ cursor: 'pointer' }} onClick={() => {this.linkHandler()}} >
+                Send link to redeem money
+              </span>
+            </div>
+          </Grid>
+          <PaymentConfirmationDialog
+            showReceipt={this.state.showReceipt}
+            sendError={this.state.sendError}
+            amountToken={
+              this.state.paymentVal.payments[0].amount.amountToken
+                ? Web3.utils.fromWei(
+                    this.state.paymentVal.payments[0].amount.amountToken
+                  )
+                : "0"
+            }
+            recipient={this.state.paymentVal.payments[0].recipient}
+            history={this.props.history}
+            closeModal={this.closeModal}
+            paymentState={paymentState}
+          />
         </Grid>
-        <PaymentConfirmationDialog
-          showReceipt={this.state.showReceipt}
-          sendError={this.state.sendError}
-          amountToken={
-            this.state.paymentVal.payments[0].amount.amountToken
-              ? Web3.utils.fromWei(
-                  this.state.paymentVal.payments[0].amount.amountToken
-                )
-              : "0"
-          }
-          recipient={this.state.paymentVal.payments[0].recipient}
-          history={this.props.history}
-          closeModal={this.closeModal}
-          paymentState={paymentState}
-        />
-      </Grid>
+      </>
     );
   }
 }
