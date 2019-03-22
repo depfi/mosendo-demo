@@ -2,10 +2,14 @@ import React from "react";
 import "../App.css";
 import ChannelCard from "./channelCard";
 import QRScan from "./qrScan";
+// import QRIcon from "mdi-material-ui/QrcodeScan";
+// import SendIcon from "@material-ui/icons/Send";
+// import ReceiveIcon from "@material-ui/icons/SaveAlt";
 import Modal from "@material-ui/core/Modal";
 import Button from "@material-ui/core/Button";
 import { Fab, Grid, withStyles } from "@material-ui/core";
 import { Link } from "react-router-dom";
+import AppBarComponent from "./AppBar";
 
 const camQR = require("../assets/camQR.png");
 const arrowUp = require("../assets/arrowUp.png");
@@ -87,11 +91,17 @@ class Home extends React.Component {
     const { address, channelState, connextState, classes } = this.props;
     return (
       <>
+        <AppBarComponent address={address}/>
         <Grid container direction="row" style={{ marginBottom: "-7.5%" }}>
           <Grid item xs={12}
             style={{ flexGrow: 1 }}
           >
-            <ChannelCard channelState={channelState} address={address} connextState = {connextState}/>
+            <ChannelCard
+              channelState={channelState}
+              address={address}
+              connextState = {connextState}
+              marginBottom='16%'
+            />
           </Grid>
         </Grid>
         <Grid container direction="column">

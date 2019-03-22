@@ -18,7 +18,7 @@ const styles = theme => ({
 
 class ChannelCard extends Component {
   render() {
-    const { classes, channelState, connextState } = this.props;
+    const { classes, channelState, connextState, marginBottom } = this.props;
     // only displays token value by default
     const display = getChannelBalanceInUSD(channelState, connextState)
     return (
@@ -31,7 +31,7 @@ class ChannelCard extends Component {
               paddingLeft: "3%",
               paddingRight: "10%",
               paddingTop: "20%",
-              paddingBottom: "5%",
+              paddingBottom: `${marginBottom}`,
               backgroundColor: '#B768D4',
               backgroundImage: 'linear-gradient(to right, #8F52AA , #B768D4)',
             }}
@@ -39,15 +39,15 @@ class ChannelCard extends Component {
             justify="center"
           >
           <Grid item xs={12}>
-            <div style={{ fontSize: '16px', color: 'white' }}>
+            <div style={{ fontSize: '16px', color: 'white', marginBottom: '20px' }}>
               Your Balance
             </div>
             <span>
-              <Typography inline={true} variant="h3" className={classes.row}>
+              <Typography inline={true} variant="h2" className={classes.row}>
                 <span>{display.substring(1, display.length - 2)}</span>
               </Typography>
-              <Typography inline={true} variant="h3" className={classes.row}>
-                <span style={{ marginRight: '10px' }}>{display.substr(display.length - 2)}</span>
+              <Typography inline={true} variant="h2" className={classes.row}>
+                <span style={{ marginRight: '15px' }}>{display.substr(display.length - 2)}</span>
               </Typography>
               <Typography inline={true} variant="h5" className={classes.row}>
                 DAI

@@ -10,7 +10,7 @@ import ProviderOptions from "./utils/ProviderOptions.ts";
 import clientProvider from "./utils/web3/clientProvider.ts";
 import { createWalletFromMnemonic } from "./walletGen";
 import { Paper, withStyles, Grid } from "@material-ui/core";
-import AppBarComponent from "./components/AppBar";
+// import AppBarComponent from "./components/AppBar";
 import SettingsCard from "./components/settingsCard";
 import ReceiveCard from "./components/receiveCard";
 import SendCard from "./components/sendCard";
@@ -338,13 +338,13 @@ class App extends React.Component {
       .multipliedBy(defaultGas)
     // add dai conversion
     const minConvertable = new CurrencyConvertable(
-      CurrencyType.WEI, 
-      depositGasPrice, 
+      CurrencyType.WEI,
+      depositGasPrice,
       () => getExchangeRates(connextState)
     )
-    const browserMinimumBalance = { 
-      wei: minConvertable.toWEI().amount, 
-      dai: minConvertable.toUSD().amount 
+    const browserMinimumBalance = {
+      wei: minConvertable.toWEI().amount,
+      dai: minConvertable.toUSD().amount
     }
     this.setState({ browserMinimumBalance })
     return browserMinimumBalance
@@ -682,7 +682,6 @@ class App extends React.Component {
               status={this.state.status}
               closeConfirmations={this.closeConfirmations.bind(this)}
             />
-            <AppBarComponent address={address} />
             <Route
               exact
               path="/"
