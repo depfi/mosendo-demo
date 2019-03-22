@@ -1,7 +1,4 @@
 import React, { Component } from "react";
-import Button from "@material-ui/core/Button";
-import ReceiveIcon from "@material-ui/icons/SaveAlt";
-import TextField from "@material-ui/core/TextField";
 import Tooltip from "@material-ui/core/Tooltip";
 import { CopyToClipboard } from "react-copy-to-clipboard";
 import Typography from "@material-ui/core/Typography";
@@ -204,10 +201,8 @@ class ReceiveCard extends Component {
                 </Typography>
                 <div
                   style={{
-                    fontWeight: '500',
-                    fontSize: '13px',
                     textAlign: 'right',
-                    paddingTop: '5%',
+                    paddingTop: '2%',
                   }}
                 >
                   <Typography noWrap variant="body1">
@@ -217,7 +212,12 @@ class ReceiveCard extends Component {
                       title="Click to Copy"
                     >
                       <span
-                        style={{ color: '#9053AB', cursor: 'pointer' }}
+                        style={{
+                          color: '#9053AB',
+                          cursor: 'pointer',
+                          fontSize: '13px',
+                          fontWeight: '500',
+                        }}
                         onClick={this.validatePayment}
                       >
                         Copy Link
