@@ -30,7 +30,7 @@ class ChannelCard extends Component {
             style={{
               paddingLeft: "3%",
               paddingRight: "10%",
-              paddingTop: "20%",
+              paddingTop: "15%",
               paddingBottom: `${marginBottom}`,
               backgroundColor: '#B768D4',
               backgroundImage: 'linear-gradient(to right, #8F52AA , #B768D4)',

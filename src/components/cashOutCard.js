@@ -3,19 +3,19 @@ import Button from "@material-ui/core/Button";
 //import IconButton from "@material-ui/core/IconButton";
 //import HighlightOffIcon from "@material-ui/icons/HighlightOff";
 //import { withRouter } from "react-router-dom";
-import UnarchiveIcon from "@material-ui/icons/Unarchive";
-import TextField from "@material-ui/core/TextField";
-import QRIcon from "mdi-material-ui/QrcodeScan";
-import EthIcon from "../assets/Eth.svg";
-import DaiIcon from "../assets/dai.svg";
 import Tooltip from "@material-ui/core/Tooltip";
-import InputAdornment from "@material-ui/core/InputAdornment";
+// import InputAdornment from "@material-ui/core/InputAdornment";
 import Modal from "@material-ui/core/Modal";
 //import CircularProgress from "@material-ui/core/CircularProgress";
 import QRScan from "./qrScan";
-import { withStyles, Grid, Typography, CircularProgress } from "@material-ui/core";
+import { withStyles, Grid, Typography } from "@material-ui/core";
 import { getChannelBalanceInUSD } from "../utils/currencyFormatting";
 import interval from "interval-promise";
+import ChannelCard from "./channelCard";
+import AppBarComponent from "./AppBar";
+
+const camQR = require("../assets/camQR.png");
+const camQRError = require("../assets/camQRError.png");
 
 const styles = theme => ({
   icon: {
@@ -35,6 +35,54 @@ const styles = theme => ({
     boxShadow: theme.shadows[5],
     padding: theme.spacing.unit * 4,
     outline: "none"
+  },
+  addressStyle: {
+    width: '89%',
+    height: '50px',
+    border: 'none',
+    boxSizing: 'border-box',
+    borderRadius: '24px',
+    padding: '15px 12px 12px 24px',
+    fontSize: '16px',
+    fontWeight: '500',
+    color: '#7F4998',
+    outline: 'none',
+    '&::placeholder': {
+      color: '#7F4998',
+      mixBlendMode: 'normal',
+      opacity: '0.5',
+    },
+  },
+  addressStyleError: {
+    width: '89%',
+    height: '50px',
+    border: 'none',
+    boxSizing: 'border-box',
+    borderRadius: '24px',
+    padding: '15px 12px 12px 24px',
+    fontSize: '16px',
+    fontWeight: '500',
+    color: '#F36C6C',
+    outline: 'none',
+    '&::placeholder': {
+      color: '#F36C6C',
+      mixBlendMode: 'normal',
+      opacity: '0.5',
+    },
+  },
+  buttomCash: {
+    color: '#ffffff',
+    fontSize: '16px',
+    fontWeight: '500',
+    heigth: '48px',
+    boxShadow: 'none',
+    backgroundColor: '#B768D4',
+    backgroundImage: 'linear-gradient(to right, #8F52AA , #B768D4)',
+    borderRadius: '24px',
+    '&:disabled': {
+      color: '#ffffff',
+      cursor: 'not-allowed'
+    }
   }
 });
 
@@ -95,7 +143,7 @@ class CashOutCard extends Component {
   // examines if the display value should be updated
   // when the component is mounting, or when the props change
 
-  // NOTE: the amount to cashout != channel card amount if there is 
+  // NOTE: the amount to cashout != channel card amount if there is
   // wei in the channel
   async updateDisplayValue() {
     const { channelState, connextState } = this.props;
@@ -190,168 +238,150 @@ class CashOutCard extends Component {
   }
 
   render() {
-    const { classes, exchangeRate, connextState } = this.props;
+    const { classes, exchangeRate, connextState, address, channelState } = this.props;
     const {
       recipientDisplayVal,
       addressError,
       scan,
-      aggregateBalance /*, withdrawing*/
+      // aggregateBalance /*, withdrawing*/
     } = this.state;
     return (
-      <Grid
-        container
-        spacing={16}
-        direction="column"
-        style={{
-          paddingLeft: 12,
-          paddingRight: 12,
-          paddingTop: "10%",
-          paddingBottom: "10%",
-          textAlign: "center",
-          justifyContent: "center"
-        }}
-      >
-        {/* <ProgressModalWrapped withdrawing={withdrawing} /> */}
+      <>
+        <AppBarComponent address={address} isBack/>
+        <Grid container direction="row" style={{ marginBottom: "-7.5%" }}>
+          <Grid item xs={12}
+            style={{ flexGrow: 1 }}
+          >
+            <ChannelCard
+              channelState={channelState}
+              address={address}
+              connextState = {connextState}
+              marginBottom='16%'
+            />
+          </Grid>
+        </Grid>
         <Grid
           container
-          wrap="nowrap"
-          direction="row"
-          justify="center"
-          alignItems="center"
-        >
-          <Grid item xs={12}>
-            <UnarchiveIcon className={classes.icon} />
-          </Grid>
-        </Grid>
-        <Grid item xs={12}>
-          <Grid container direction="row" justify="center" alignItems="center">
-            <Typography variant="h2">
-              <span>{aggregateBalance}</span>
-            </Typography>
-          </Grid>
-        </Grid>
-        <Grid item xs={12}>
-          <Typography variant="caption">
-            <span>{"ETH price: $" + exchangeRate}</span>
-          </Typography>
-        </Grid>
-        <Grid item xs={12}>
-          <TextField
-            style={{ width: "100%" }}
-            id="outlined-with-placeholder"
-            label="Address"
-            placeholder="0x0..."
-            value={recipientDisplayVal || ""}
-            onChange={evt => this.updateRecipientHandler(evt.target.value)}
-            margin="normal"
-            variant="outlined"
-            required
-            helperText={addressError}
-            error={addressError != null}
-            InputProps={{
-              endAdornment: (
-                <InputAdornment position="end">
-                  <Tooltip
-                    disableFocusListener
-                    disableTouchListener
-                    title="Scan with QR code"
-                  >
-                    <Button
-                      variant="contained"
-                      color="primary"
-                      style={{ color: "primary" }}
-                      onClick={() => this.setState({ scan: true })}
-                    >
-                      <QRIcon />
-                    </Button>
-                  </Tooltip>
-                </InputAdornment>
-              )
-            }}
-          />
-        </Grid>
-        <Modal
-          id="qrscan"
-          open={scan}
-          onClose={() => this.setState({ scan: false })}
+          spacing={16}
+          direction="column"
           style={{
-            justifyContent: "center",
-            alignItems: "center",
+            paddingLeft: 12,
+            paddingRight: 12,
+            paddingTop: "10%",
+            paddingBottom: "10%",
             textAlign: "center",
-            position: "absolute",
-            top: "10%",
-            width: "375px",
-            marginLeft: "auto",
-            marginRight: "auto",
-            left: "0",
-            right: "0"
+            justifyContent: "center"
           }}
         >
-          <QRScan
-            handleResult={this.updateRecipientHandler.bind(this)}
-            history={this.props.history}
-          />
-        </Modal>
-        <Grid item xs={12}>
-          <Grid
-            container
-            spacing={8}
-            direction="row"
-            alignItems="center"
-            justify="center"
-          >
-            <Grid item xs={6}>
-              <Button
-                className={classes.button}
-                fullWidth
-                onClick={() => this.withdrawalHandler(true)}
-                disabled={!connextState || !connextState.runtime.canWithdraw}
+          {/* <ProgressModalWrapped withdrawing={withdrawing} /> */}
+          <Grid item xs={12} style={{ textAlign: 'left' }}>
+            <Typography variant="body2">
+              <span
+                style={{
+                  fontStyle: 'italic',
+                  fontWeight: '300',
+                  fontSize: '13px',
+                }}
               >
-                Cash Out Eth
-                <img
-                  src={EthIcon}
-                  style={{ width: "15px", height: "15px", marginLeft: "5px" }}
-                  alt=""
-                />
-              </Button>
-            </Grid>
-            <Grid item xs={6}>
-              <Button
-                className={classes.button}
-                variant="contained"
-                fullWidth
-                onClick={() => this.withdrawalHandler(false)}
-                disabled
-              >
-                Cash Out Dai
-                <img
-                  src={DaiIcon}
-                  style={{ width: "15px", height: "15px", marginLeft: "5px" }}
-                  alt=""
-                />
-              </Button>
-            </Grid>
+                {"ETH price: $" + exchangeRate}
+              </span>
+            </Typography>
           </Grid>
-        </Grid>
-        <Grid item xs={12}>
-          <Button
-            variant="outlined"
+          <Grid item xs={12} style={{ marginTop: '10%', textAlign: 'left' }}>
+            <div
+              style={{
+                borderRadius: '24px',
+                border: `${addressError !== null ? '1px solid #F36C6C' : '1px solid #7F4998'}`
+              }}
+            >
+              <input
+                id="outlined-with-placeholder"
+                type="string"
+                value={recipientDisplayVal || ""}
+                onChange={evt => this.updateRecipientHandler(evt.target.value)}
+                placeholder='Recipient Address...'
+                autoComplete="off"
+                required
+                className={addressError !== null ? classes.addressStyleError : classes.addressStyle}
+              />
+              <Tooltip
+                disableFocusListener
+                disableTouchListener
+                title="Scan with QR code"
+              >
+                <span
+                  style={{ verticalAlign: 'sub', cursor: 'pointer' }}
+                  onClick={() => this.setState({ scan: true })}
+                >
+                  <img
+                    src={addressError === null ? camQR : camQRError}
+                    alt=""
+                    style={{ width: "24px", height: "24px" }}
+                  />
+                </span>
+              </Tooltip>
+            </div>
+            {addressError !== null && (
+              <div
+                style={{
+                  padding: '5% 24px',
+                  color: '#F36C6C',
+                  fontWeight: '300',
+                  fontSize: '13px',
+                  textAlign: 'center'
+                }}
+              >
+                <span>
+                  *{addressError}
+                </span>
+              </div>
+            )}
+          </Grid>
+          <Modal
+            id="qrscan"
+            open={scan}
+            onClose={() => this.setState({ scan: false })}
             style={{
-              background: "#FFF",
-              border: "1px solid #F22424",
-              color: "#F22424",
-              width: "15%"
+              justifyContent: "center",
+              alignItems: "center",
+              textAlign: "center",
+              position: "absolute",
+              top: "10%",
+              width: "375px",
+              marginLeft: "auto",
+              marginRight: "auto",
+              left: "0",
+              right: "0"
             }}
-            size="medium"
-            onClick={() => this.props.history.push("/")}
           >
-            Back
-          </Button>
-          <Grid item xs={12} style={{paddingTop:"10%"}}>
-            {this.state.withdrawing && <CircularProgress color="primary" />}
+            <QRScan
+              handleResult={this.updateRecipientHandler.bind(this)}
+              history={this.props.history}
+            />
+          </Modal>
+          <Grid item xs={12} style={{ marginTop: '23%' }}>
+            <Button
+              className={classes.buttomCash}
+              fullWidth
+              onClick={() => this.withdrawalHandler(true)}
+              disabled={!connextState || !connextState.runtime.canWithdraw}
+            >
+              Cash Out Dai
+            </Button>
+          </Grid>
+          <Grid item xs={12} style={{ display: 'none' }}>
+            <Button
+              className={classes.buttomCash}
+              variant="contained"
+              fullWidth
+              onClick={() => this.withdrawalHandler(false)}
+              disabled
+            >
+              Cash Out Dai
+            </Button>
           </Grid>
         </Grid>
-      </Grid>
+      </>
     );
   }
 }
