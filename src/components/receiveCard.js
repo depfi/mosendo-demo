@@ -16,12 +16,30 @@ import BN from "bn.js";
 import Web3 from "web3";
 import { getAmountInUSD } from "../utils/currencyFormatting";
 import { emptyAddress } from "connext/dist/Utils";
+import AppBarComponent from "./AppBar";
 
 const styles = theme => ({
   icon: {
     width: "40px",
     height: "40px"
-  }
+  },
+  amountStyle: {
+    width: '100%',
+    height: '50px',
+    border: '1px solid #7F4998',
+    boxSizing: 'border-box',
+    borderRadius: '24px',
+    padding: '15px 24px 12px',
+    fontSize: '16px',
+    fontWeight: '500',
+    color: '#7F4998',
+    '&::placeholder': {
+      color: '#7F4998',
+      mixBlendMode: 'normal',
+      opacity: '0.5',
+    },
+    outline: 'none',
+  },
 });
 
 class ReceiveCard extends Component {
@@ -89,7 +107,7 @@ class ReceiveCard extends Component {
     if (decimal && decimal.length > 18) {
       tokenVal = value.startsWith('.') ? value.substr(0, 19) : value.split('.')[0] + '.' + decimal.substr(0, 18)
       error = `Value too precise! Using ${tokenVal}`
-    }    
+    }
     this.setState({
       qrUrl: this.generateQrUrl(value),
       amountToken: Web3.utils.toWei(tokenVal, "ether"),
@@ -110,90 +128,108 @@ class ReceiveCard extends Component {
 
   render() {
     const { classes } = this.props;
-    const { qrUrl, error, displayValue, amountToken, copied } = this.state;
+    const { qrUrl, error, displayValue, amountToken, copied, address } = this.state;
     return (
-      <Grid
-        container
-        spacing={16}
-        direction="column"
-        style={{
-          paddingLeft: "10%",
-          paddingRight: "10%",
-          paddingTop: "10%",
-          paddingBottom: "10%",
-          textAlign: "center",
-          justifyContent: "center"
-        }}
-      >
-        <Snackbar
-          handleClick={this.handleClick}
-          onClose={this.handleClick}
-          open={copied}
-          text="Copied!"
-        />
+      <>
+        <AppBarComponent address={address} isBack isSetting={false} />
         <Grid
           container
-          wrap="nowrap"
-          direction="row"
-          justify="center"
-          alignItems="center"
+          spacing={16}
+          direction="column"
+          style={{
+            paddingLeft: "5%",
+            paddingRight: "5%",
+            paddingBottom: "10%",
+            textAlign: "center",
+            justifyContent: "center"
+          }}
         >
+          <Snackbar
+            handleClick={this.handleClick}
+            onClose={this.handleClick}
+            open={copied}
+            text="Copied!"
+          />
           <Grid item xs={12}>
-            <ReceiveIcon className={classes.icon} />
+            <div style={{ margin: '10% 0 8px 0' }}>
+              <input
+                id="outlined-number"
+                value={displayValue}
+                type="number"
+                onChange={evt => this.updatePaymentHandler(evt.target.value)}
+                placeholder='Amount...'
+                className={classes.amountStyle}
+              />
+              {error !== null && (
+                <div
+                  style={{
+                    padding: '5px 24px',
+                    color: 'red',
+                    fontWeight: '300',
+                    fontSize: '13px',
+                  }}
+                >
+                  <span>{error}</span>
+                </div>
+              )}
+            </div>
+          </Grid>
+          <Grid item xs={12} style={{ margin: '15% 0 5%' }}>
+            <QRGenerate value={qrUrl} fgColor={'#9053AB'} size={192} />
+          </Grid>
+          <Grid item xs={12}>
+            {/* <CopyIcon style={{marginBottom: "2px"}}/> */}
+            <CopyToClipboard
+              onCopy={this.handleCopy}
+              text={(error === null || error.indexOf('too precise') !== -1) && amountToken !== null ? qrUrl : ''}
+            >
+              <div
+                style={{
+                  fontWeight: '300',
+                  fontSize: '24px',
+                  textAlign: 'center',
+                  padding: '0 10%',
+                }}
+              >
+                <Typography noWrap variant="body1">
+                  <Tooltip
+                    disableFocusListener
+                    disableTouchListener
+                    title="Click to Copy"
+                  >
+                    <span onClick={this.validatePayment} style={{ cursor: 'pointer' }}>
+                      {qrUrl}
+                    </span>
+                  </Tooltip>
+                </Typography>
+                <div
+                  style={{
+                    fontWeight: '500',
+                    fontSize: '13px',
+                    textAlign: 'right',
+                    paddingTop: '5%',
+                  }}
+                >
+                  <Typography noWrap variant="body1">
+                    <Tooltip
+                      disableFocusListener
+                      disableTouchListener
+                      title="Click to Copy"
+                    >
+                      <span
+                        style={{ color: '#9053AB', cursor: 'pointer' }}
+                        onClick={this.validatePayment}
+                      >
+                        Copy Link
+                      </span>
+                    </Tooltip>
+                  </Typography>
+                </div>
+              </div>
+            </CopyToClipboard>
           </Grid>
         </Grid>
-        <Grid item xs={12}>
-          <TextField
-            fullWidth
-            id="outlined-number"
-            label="Amount"
-            value={displayValue}
-            type="number"
-            margin="normal"
-            variant="outlined"
-            onChange={evt => this.updatePaymentHandler(evt.target.value)}
-            error={error != null}
-            helperText={error}
-          />
-        </Grid>
-        <Grid item xs={12}>
-          <QRGenerate value={qrUrl} />
-        </Grid>
-        <Grid item xs={12}>
-          {/* <CopyIcon style={{marginBottom: "2px"}}/> */}
-          <CopyToClipboard
-            onCopy={this.handleCopy}
-            text={error == null || error.indexOf('too precise') != -1 && amountToken != null ? qrUrl : ''}
-          >
-            <Button variant="outlined" fullWidth onClick={this.validatePayment}>
-              <Typography noWrap variant="body1">
-                <Tooltip
-                  disableFocusListener
-                  disableTouchListener
-                  title="Click to Copy"
-                >
-                  <span>{qrUrl}</span>
-                </Tooltip>
-              </Typography>
-            </Button>
-          </CopyToClipboard>
-        </Grid>
-        <Grid item xs={12}>
-          <Button
-            variant="outlined"
-            style={{
-              background: "#FFF",
-              border: "1px solid #F22424",
-              color: "#F22424",
-              width: "15%"
-            }}
-            size="medium"
-            onClick={() => this.props.history.push("/")}
-          >
-            Back
-          </Button>
-        </Grid>
-      </Grid>
+      </>
     );
   }
 }
