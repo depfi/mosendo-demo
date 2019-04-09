@@ -19,8 +19,14 @@ import {
 import { CopyToClipboard } from "react-copy-to-clipboard";
 import CopyIcon from "@material-ui/icons/FileCopy";
 import SubmitIcon from "@material-ui/icons/ArrowRight";
+<<<<<<< HEAD
 import { createWallet, createWalletFromMnemonic } from "../walletGen";
 import Snackbar from "./snackBar";
+=======
+import { createWallet, createWalletFromMnemonic } from "../utils/walletGen";
+import SettingsIcon from "@material-ui/icons/Settings";
+import MySnackbar from "./snackBar";
+>>>>>>> 93491514f1a1fd759b19c6a825d49a656577ae2d
 import interval from "interval-promise";
 import AppBarComponent from "./AppBar";
 import QRGenerate from "./qrGenerate";
@@ -79,13 +85,13 @@ class SettingsCard extends Component {
       showRecovery: false,
       inputRecovery: false,
       rpc: localStorage.getItem("rpc-prod"),
-      mnemonic: null,
-      copied: null,
+      mnemonic: '',
+      copied: false,
       showWarning: false
     };
   }
 
-  handleClick = async () => {
+  closeModal = async () => {
     await this.setState({ copied: false });
   };
 
@@ -145,10 +151,27 @@ class SettingsCard extends Component {
     const { classes, address } = this.props;
     const { copied } = this.state;
     return (
-      <>
-        <AppBarComponent address={address} isBack isSetting={false} />
-        <Grid item xs={12} style={{ textAlign: 'center', margin: '3% 0' }}>
-          <QRGenerate value={address} fgColor={'#9053AB'} size={80} />
+      <Grid
+        container
+        spacing={16}
+        direction="column"
+        style={{
+          paddingLeft: 12,
+          paddingRight: 12,
+          paddingTop: "10%",
+          paddingBottom: "10%",
+          textAlign: "center",
+          justifyContent: "center"
+        }}
+      >
+        <MySnackbar
+          variant="success"
+          openWhen={copied}
+          onClose={() => this.closeModal()}
+          message="Copied!"
+        />
+        <Grid item xs={12} style={{ justifyContent: "center" }}>
+          <SettingsIcon className={classes.icon} />
         </Grid>
         <Grid item xs={12}>
           {/* <CopyIcon style={{marginBottom: "2px"}}/> */}
@@ -156,13 +179,26 @@ class SettingsCard extends Component {
             onCopy={this.handleCopy}
             text={address}
           >
-            <div
-              style={{
-                fontWeight: '300',
-                fontSize: '16px',
-                textAlign: 'center',
-                color: '#000000',
-              }}
+            Support
+          </Button>
+        </Grid>
+        <Grid item xs={12} className={classes.button}>
+          {!this.state.showRecovery ? (
+            <Button
+              fullWidth
+              className={classes.button}
+              variant="outlined"
+              color="primary"
+              size="large"
+              onClick={() => this.setState({ showRecovery: true })}
+            >
+              Show Backup Phrase
+            </Button>
+          ) : (
+            <CopyToClipboard
+              onCopy={() => this.setState({ copied: true })}
+              text={localStorage.getItem("mnemonic")}
+              color="primary"
             >
               <Typography noWrap variant="body1">
                 <Tooltip
@@ -386,25 +422,26 @@ class SettingsCard extends Component {
                 textAlign: "center",
               }}
             >
-              <Grid
-                container
-                style={{
-                  backgroundColor: "#FFF",
-                  padding: "3% 3% 3% 3%",
-                  flexDirection: "column"
-                }}
-              >
-                <DialogTitle disableTypography>
-                  <Typography variant="h5" style={{ color: "#F22424" }}>
-                  Are you sure you want to delete your Card?
-                  </Typography>
-                </DialogTitle>
-                <DialogContent>
-                {this.state.isBurning ? (
-                  <Grid item xs={12}>
-                    <DialogContentText variant="body1">
-                      Deleting. Please do not refresh or navigate away. This page
-                      with refresh automatically when it's done.
+              <DialogTitle disableTypography>
+                <Typography variant="h5" style={{ color: "#F22424" }}>
+                Are you sure you want to burn your Card?
+                </Typography>
+              </DialogTitle>
+              <DialogContent>
+              {this.state.isBurning ? (
+                <Grid item xs={12}>
+                  <DialogContentText variant="body1">
+                    Burning. Please do not refresh or navigate away. This page
+                    will refresh automatically when it's done.
+                  </DialogContentText>
+                  <CircularProgress style={{ marginTop: "1em" }} />
+                  </Grid>
+              ) : (
+                <Grid container alignItems="center" justify="center" direction="column">
+                <Grid item xs={12}>
+                    <DialogContentText variant="body1" style={{ color: "#F22424" }}>
+                      You will lose access to your funds unless you save your
+                      backup phrase!
                     </DialogContentText>
                     <CircularProgress style={{ marginTop: "1em" }} />
                     </Grid>

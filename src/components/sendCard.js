@@ -115,7 +115,7 @@ function ConfirmationDialogText(paymentState, amountToken, recipient) {
         <Grid>
           <DialogTitle disableTypography>
             <Typography variant="h5" color="primary">
-              Payment In Process
+              Payment In Progress
             </Typography>
           </DialogTitle>
           <DialogContent>
@@ -388,7 +388,7 @@ class PayCard extends Component {
       (isLink ? address === emptyAddress : address !== emptyAddress);
 
     if (!isValidRecipient) {
-      addressError = "Please choose a valid address";
+      addressError = address + " is an invalid address";
     }
 
     // linked payments also have a maximum enforced
@@ -412,7 +412,9 @@ class PayCard extends Component {
       ...paymentVal.payments[0],
       type: "PT_LINK",
       recipient: emptyAddress,
-      secret: connext.generateSecret()
+      meta: {
+        secret: connext.generateSecret()
+      }
     };
 
     const updatedPaymentVal = {
@@ -560,7 +562,7 @@ class PayCard extends Component {
       await connext.buy(paymentVal);
       if (paymentVal.payments[0].type === "PT_LINK") {
         // automatically route to redeem card
-        const secret = paymentVal.payments[0].secret;
+        const secret = paymentVal.payments[0].meta.secret;
         const amount = paymentVal.payments[0].amount;
         this.props.history.push({
           pathname: "/redeem",
