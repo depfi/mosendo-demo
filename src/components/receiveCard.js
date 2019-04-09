@@ -8,7 +8,7 @@ import QRGenerate from "./qrGenerate";
 //import HighlightOffIcon from "@material-ui/icons/HighlightOff";
 //import { withRouter } from "react-router-dom";
 import { withStyles, Grid } from "@material-ui/core";
-import Snackbar from "./snackBar";
+import MySnackbar from "./snackBar";
 import BN from "bn.js";
 import Web3 from "web3";
 import { getAmountInUSD } from "../utils/currencyFormatting";
@@ -52,7 +52,7 @@ class ReceiveCard extends Component {
     };
   }
 
-  handleClick = async () => {
+  closeModal = async () => {
     this.setState({ copied: false });
   };
 
@@ -92,8 +92,6 @@ class ReceiveCard extends Component {
   }
 
   updatePaymentHandler = async value => {
-    // appears to be just value
-    const token = value ? value : "0"
     // protect against precision errors
     const decimal = (
       value.startsWith('.') ? value.substr(1) : value.split('.')[1]
@@ -127,8 +125,25 @@ class ReceiveCard extends Component {
     const { classes } = this.props;
     const { qrUrl, error, displayValue, amountToken, copied, address } = this.state;
     return (
-      <>
-        <AppBarComponent address={address} isBack isSetting={false} />
+      <Grid
+        container
+        spacing={16}
+        direction="column"
+        style={{
+          paddingLeft: "10%",
+          paddingRight: "10%",
+          paddingTop: "10%",
+          paddingBottom: "10%",
+          textAlign: "center",
+          justifyContent: "center"
+        }}
+      >
+        <MySnackbar
+          variant="success"
+          openWhen={copied}
+          onClose={this.closeModal}
+          message="Copied!"
+        />
         <Grid
           container
           spacing={16}
@@ -171,39 +186,36 @@ class ReceiveCard extends Component {
               )}
             </div>
           </Grid>
-          <Grid item xs={12} style={{ margin: '15% 0 5%' }}>
-            <QRGenerate value={qrUrl} fgColor={'#9053AB'} size={192} />
-          </Grid>
-          <Grid item xs={12}>
-            {/* <CopyIcon style={{marginBottom: "2px"}}/> */}
-            <CopyToClipboard
-              onCopy={this.handleCopy}
-              text={(error === null || error.indexOf('too precise') !== -1) && amountToken !== null ? qrUrl : ''}
-            >
-              <div
-                style={{
-                  fontWeight: '300',
-                  fontSize: '24px',
-                  textAlign: 'center',
-                  padding: '0 10%',
-                }}
-              >
-                <Typography noWrap variant="body1">
-                  <Tooltip
-                    disableFocusListener
-                    disableTouchListener
-                    title="Click to Copy"
-                  >
-                    <span onClick={this.validatePayment} style={{ cursor: 'pointer' }}>
-                      {qrUrl}
-                    </span>
-                  </Tooltip>
-                </Typography>
-                <div
-                  style={{
-                    textAlign: 'right',
-                    paddingTop: '2%',
-                  }}
+        </Grid>
+        <Grid item xs={12}>
+          <TextField
+            fullWidth
+            id="outlined-number"
+            label="Amount"
+            value={displayValue}
+            type="number"
+            margin="normal"
+            variant="outlined"
+            onChange={evt => this.updatePaymentHandler(evt.target.value)}
+            error={error !== null}
+            helperText={error}
+          />
+        </Grid>
+        <Grid item xs={12}>
+          <QRGenerate value={qrUrl} />
+        </Grid>
+        <Grid item xs={12}>
+          {/* <CopyIcon style={{marginBottom: "2px"}}/> */}
+          <CopyToClipboard
+            onCopy={this.handleCopy}
+            text={(error == null || error.indexOf('too precise') !== -1) && amountToken != null ? qrUrl : ''}
+          >
+            <Button variant="outlined" fullWidth onClick={this.validatePayment}>
+              <Typography noWrap variant="body1">
+                <Tooltip
+                  disableFocusListener
+                  disableTouchListener
+                  title="Click to Copy"
                 >
                   <Typography noWrap variant="body1">
                     <Tooltip
